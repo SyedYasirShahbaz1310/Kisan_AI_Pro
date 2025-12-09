@@ -658,6 +658,7 @@ function App() {
               key={lang}
               className={`lang-btn ${language === lang ? 'active' : ''}`}
               onClick={() => setLanguage(lang)}
+              style={{ borderRadius: '50px' }}
             >
               {languageNames[lang]}
             </button>
@@ -746,8 +747,15 @@ function App() {
               <input 
                 type="number" 
                 value={weatherData.temperature}
-                onChange={(e) => setWeatherData({...weatherData, temperature: Number(e.target.value)})}
-                min="0" max="50"
+                onChange={(e) => {
+                  let val = Number(e.target.value);
+                  if (val < 0) val = 0;
+                  if (val > 55) val = 55;
+                  setWeatherData({...weatherData, temperature: val});
+                }}
+                min="0" 
+                max="55"
+                step="1"
               />
             </div>
             <div className="input-group">
@@ -755,8 +763,15 @@ function App() {
               <input 
                 type="number" 
                 value={weatherData.rainfall}
-                onChange={(e) => setWeatherData({...weatherData, rainfall: Number(e.target.value)})}
-                min="0" max="500"
+                onChange={(e) => {
+                  let val = Number(e.target.value);
+                  if (val < 0) val = 0;
+                  if (val > 500) val = 500;
+                  setWeatherData({...weatherData, rainfall: val});
+                }}
+                min="0" 
+                max="500"
+                step="1"
               />
             </div>
             <div className="input-group">
@@ -764,8 +779,15 @@ function App() {
               <input 
                 type="number" 
                 value={weatherData.soilMoisture}
-                onChange={(e) => setWeatherData({...weatherData, soilMoisture: Number(e.target.value)})}
-                min="0" max="100"
+                onChange={(e) => {
+                  let val = Number(e.target.value);
+                  if (val < 0) val = 0;
+                  if (val > 100) val = 100;
+                  setWeatherData({...weatherData, soilMoisture: val});
+                }}
+                min="0" 
+                max="100"
+                step="1"
               />
             </div>
             <div className="input-group">
