@@ -347,20 +347,42 @@ app.post('/api/ask-ai', async (req, res) => {
 
     const selectedLanguage = language || 'ur'; // Default to Urdu
     
+    // Language name mapping
+    const languageNames = {
+      'en': 'English',
+      'ur': 'Urdu (اردو - use Nastaliq script)',
+      'pa': 'Punjabi (پنجابی - use Shahmukhi script)',
+      'sr': 'Saraiki (سرائیکی - use Saraiki script)'
+    };
+    
+    const languageInstructions = {
+      'en': 'Write your response in ENGLISH only.',
+      'ur': 'آپ کو صرف اردو زبان میں جواب دینا ہے۔ رومن اردو یا انگریزی میں نہیں۔ Write in Urdu script (نستعلیق).',
+      'pa': 'تسی صرف پنجابی زبان وچ جواب دینا اے۔ شاہ مکھی رسم الخط ورتو۔ Write in Punjabi Shahmukhi script.',
+      'sr': 'تہاکوں صرف سرائیکی زبان ۾ جواب ڏینا ہے۔ Write in Saraiki script.'
+    };
+    
     // Use Gemma model (free, unlimited) instead of Gemini
     const model = genAI.getGenerativeModel({ model: 'gemma-3-27b-it' });
 
     // Create the full prompt with dataset and selected language
     const fullPrompt = getAgriAIPrompt(selectedLanguage) + JSON.stringify(agriData, null, 2) + `
 
-FARMER'S QUESTION:
+FARMER'S QUESTION (may be in Roman Urdu, Urdu, English or any language - understand it but respond in specified language):
 "${query}"
 
-REQUIRED RESPONSE LANGUAGE: ${selectedLanguage === 'en' ? 'English' : selectedLanguage === 'ur' ? 'Urdu' : selectedLanguage === 'pa' ? 'Punjabi' : 'Saraiki'}
+⚠️ CRITICAL LANGUAGE INSTRUCTION ⚠️
+You MUST respond ONLY in: ${languageNames[selectedLanguage]}
+${languageInstructions[selectedLanguage]}
 
-IMPORTANT: You MUST respond in the language specified above (${selectedLanguage}). This is mandatory!
+DO NOT respond in English or Roman Urdu unless the selected language is English!
+The user's input language does not matter - ALWAYS respond in the specified language above.
 
-Now provide the answer in ${selectedLanguage === 'en' ? 'ENGLISH' : selectedLanguage === 'ur' ? 'URDU' : selectedLanguage === 'pa' ? 'PUNJABI' : 'SARAIKI'} following all the rules above:`;
+If selected language is Urdu: جواب صرف اردو میں دیں
+If selected language is Punjabi: جواب صرف پنجابی شاہ مکھی وچ دیو
+If selected language is Saraiki: جواب صرف سرائیکی ۾ ڏیو
+
+Now provide your agricultural advice:`;
 
     const result = await model.generateContent(fullPrompt);
     const response = result.response.text();

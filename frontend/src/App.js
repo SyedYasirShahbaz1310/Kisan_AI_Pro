@@ -42,7 +42,13 @@ const translations = {
     fungus: 'Fungus Risk 🍄',
     drought: 'Drought Risk ☀️',
     flood: 'Flood Risk 🌊',
-    heat: 'Heat Stress 🔥'
+    heat: 'Heat Stress 🔥',
+    // Chatbot translations
+    chatbotTitle: 'Kisan AI Assistant',
+    chatbotWelcome: 'Hello! 👋 I am Kisan AI. How can I help you with farming today?',
+    chatbotPlaceholder: 'Type your question here...',
+    chatbotSend: 'Send',
+    chatbotTyping: 'Typing...'
   },
   ur: {
     appName: 'کسان اے آئی',
@@ -78,7 +84,13 @@ const translations = {
     fungus: 'پھپھوندی کا خطرہ 🍄',
     drought: 'خشک سالی کا خطرہ ☀️',
     flood: 'سیلاب کا خطرہ 🌊',
-    heat: 'شدید گرمی 🔥'
+    heat: 'شدید گرمی 🔥',
+    // Chatbot translations
+    chatbotTitle: 'کسان AI اسسٹنٹ',
+    chatbotWelcome: 'السلام علیکم! 👋 میں کسان AI ہوں۔ کھیتی باڑی میں کیسے مدد کر سکتا ہوں؟',
+    chatbotPlaceholder: 'اپنا سوال یہاں لکھیں...',
+    chatbotSend: 'بھیجیں',
+    chatbotTyping: 'لکھ رہا ہے...'
   },
   pa: {
     appName: 'کسان اے آئی',
@@ -114,7 +126,13 @@ const translations = {
     fungus: 'پھپھوندی دا خطرہ 🍄',
     drought: 'سوکے دا خطرہ ☀️',
     flood: 'ہڑھ دا خطرہ 🌊',
-    heat: 'سخت گرمی 🔥'
+    heat: 'سخت گرمی 🔥',
+    // Chatbot translations
+    chatbotTitle: 'کسان AI اسسٹنٹ',
+    chatbotWelcome: 'سلام! 👋 میں کسان AI ہاں۔ کھیتی باڑی وچ کویں مدد کر سکدا ہاں؟',
+    chatbotPlaceholder: 'اپنا سوال ایتھے لکھو...',
+    chatbotSend: 'بھیجو',
+    chatbotTyping: 'لکھ رہیا اے...'
   },
   sr: {
     appName: 'کسان اے آئی',
@@ -150,7 +168,13 @@ const translations = {
     fungus: 'پھپھوندی دا خطرہ 🍄',
     drought: 'سوکے دا خطرہ ☀️',
     flood: 'ہڑ دا خطرہ 🌊',
-    heat: 'سخت گرمی 🔥'
+    heat: 'سخت گرمی 🔥',
+    // Chatbot translations
+    chatbotTitle: 'کسان AI اسسٹنٹ',
+    chatbotWelcome: 'سلام! 👋 میں کسان AI ہاں۔ کھیتی باڑی وچ کیویں مدد کر سڳدا ہاں؟',
+    chatbotPlaceholder: 'اپنا سوال ایتھے لکھو...',
+    chatbotSend: 'بھیجو',
+    chatbotTyping: 'لکھ رہیا اے...'
   }
 };
 
@@ -177,6 +201,12 @@ function App() {
   const [originalTranscript, setOriginalTranscript] = useState(''); // Store original for re-translation
   const [isSpeaking, setIsSpeaking] = useState(false); // For TTS status
   
+  // Chatbot states
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatTyping, setIsChatTyping] = useState(false);
+  
   // Weather inputs for prediction
   const [weatherData, setWeatherData] = useState({
     temperature: 30,
@@ -190,6 +220,7 @@ function App() {
   const recognitionRef = useRef(null);
   const prevLanguageRef = useRef(language);
   const synthRef = useRef(window.speechSynthesis);
+  const chatEndRef = useRef(null);
   
   // Get current translations
   const t = translations[language];
@@ -198,6 +229,33 @@ function App() {
   useEffect(() => {
     localStorage.setItem('kisanAI_language', language);
   }, [language]);
+  
+  // Initialize chat with welcome message
+  useEffect(() => {
+    if (chatMessages.length === 0) {
+      setChatMessages([{
+        type: 'bot',
+        text: t.chatbotWelcome,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    }
+  }, []);
+  
+  // Update welcome message when language changes
+  useEffect(() => {
+    if (chatMessages.length === 1 && chatMessages[0].type === 'bot') {
+      setChatMessages([{
+        type: 'bot',
+        text: t.chatbotWelcome,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
+    }
+  }, [language, t.chatbotWelcome]);
+  
+  // Scroll to bottom of chat
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   // Reference to track if we should stop speaking
   const shouldStopRef = useRef(false);
@@ -610,6 +668,53 @@ function App() {
     }
   };
 
+  // Chatbot send message function
+  const handleChatSend = async () => {
+    if (!chatInput.trim()) return;
+    
+    const userMessage = {
+      type: 'user',
+      text: chatInput.trim(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setIsChatTyping(true);
+    
+    try {
+      const response = await axios.post(`${API_BASE}/ask-ai`, {
+        query: chatInput.trim(),
+        language: language
+      });
+      
+      if (response.data.success) {
+        const botMessage = {
+          type: 'bot',
+          text: response.data.answer,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setChatMessages(prev => [...prev, botMessage]);
+      }
+    } catch (err) {
+      const errorMessage = {
+        type: 'bot',
+        text: t.processingError,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsChatTyping(false);
+    }
+  };
+  
+  const handleChatKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleChatSend();
+    }
+  };
+
   const handleMicClick = () => {
     if (isRecording) {
       stopRecording();
@@ -840,6 +945,82 @@ function App() {
         <p>{t.footer1}</p>
         <p>{t.footer2}</p>
       </footer>
+      
+      {/* Floating Chatbot Widget */}
+      <div className={`chatbot-widget ${isChatOpen ? 'open' : ''}`}>
+        {/* Chat Window */}
+        {isChatOpen && (
+          <div className="chatbot-window">
+            {/* Chat Header */}
+            <div className="chatbot-header">
+              <div className="chatbot-header-info">
+                <div className="chatbot-avatar">🌾</div>
+                <div className="chatbot-header-text">
+                  <h4>{t.chatbotTitle}</h4>
+                  <span className="chatbot-status">● Online</span>
+                </div>
+              </div>
+              <button className="chatbot-close" onClick={() => setIsChatOpen(false)}>
+                ✕
+              </button>
+            </div>
+            
+            {/* Chat Messages */}
+            <div className="chatbot-messages">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`chat-message ${msg.type}`}>
+                  {msg.type === 'bot' && <div className="chat-avatar">🌾</div>}
+                  <div className="chat-bubble">
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    <span className="chat-time">{msg.time}</span>
+                  </div>
+                  {msg.type === 'user' && <div className="chat-avatar user-avatar">👤</div>}
+                </div>
+              ))}
+              {isChatTyping && (
+                <div className="chat-message bot">
+                  <div className="chat-avatar">🌾</div>
+                  <div className="chat-bubble typing">
+                    <div className="typing-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+            
+            {/* Chat Input */}
+            <div className="chatbot-input-area">
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyPress={handleChatKeyPress}
+                placeholder={t.chatbotPlaceholder}
+                className={language !== 'en' ? 'urdu-text' : ''}
+              />
+              <button 
+                className="chat-send-btn" 
+                onClick={handleChatSend}
+                disabled={!chatInput.trim() || isChatTyping}
+              >
+                {t.chatbotSend}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Floating Button */}
+        <button 
+          className={`chatbot-toggle ${isChatOpen ? 'active' : ''}`}
+          onClick={() => setIsChatOpen(!isChatOpen)}
+        >
+          {isChatOpen ? '✕' : '💬'}
+        </button>
+      </div>
     </div>
   );
 }
