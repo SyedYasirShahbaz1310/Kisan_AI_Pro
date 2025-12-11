@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4caf50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5a27;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="250" fill="url(#grad)"/>
+  <!-- Wheat/Crop Icon -->
+  <g fill="#ffffff" transform="translate(256, 280)">
+    <!-- Stem -->
+    <rect x="-8" y="-80" width="16" height="180" rx="8"/>
+    <!-- Left Leaves -->
+    <ellipse cx="-45" cy="-60" rx="35" ry="12" transform="rotate(-30 -45 -60)"/>
+    <ellipse cx="-50" cy="-20" rx="35" ry="12" transform="rotate(-40 -50 -20)"/>
+    <ellipse cx="-45" cy="20" rx="35" ry="12" transform="rotate(-30 -45 20)"/>
+    <!-- Right Leaves -->
+    <ellipse cx="45" cy="-60" rx="35" ry="12" transform="rotate(30 45 -60)"/>
+    <ellipse cx="50" cy="-20" rx="35" ry="12" transform="rotate(40 50 -20)"/>
+    <ellipse cx="45" cy="20" rx="35" ry="12" transform="rotate(30 45 20)"/>
+    <!-- Top Grain -->
+    <ellipse cx="0" cy="-100" rx="20" ry="30"/>
+  </g>
+  <!-- AI Text -->
+  <text x="256" y="450" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="60" font-weight="bold">AI</text>
+</svg>
