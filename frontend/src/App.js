@@ -218,9 +218,36 @@ function App() {
   const prevLanguageRef = useRef(language);
   const synthRef = useRef(window.speechSynthesis);
   const chatEndRef = useRef(null);
+  const voicesLoadedRef = useRef(false);
+  const availableVoicesRef = useRef([]);
   
   // Get current translations
   const t = translations[language];
+  
+  // Pre-load voices on app start (important for mobile)
+  useEffect(() => {
+    const loadVoices = () => {
+      const voices = synthRef.current.getVoices();
+      if (voices.length > 0) {
+        availableVoicesRef.current = voices;
+        voicesLoadedRef.current = true;
+        console.log('✅ Voices loaded:', voices.length);
+      }
+    };
+    
+    // Load immediately
+    loadVoices();
+    
+    // Also listen for voices changed event (some browsers load async)
+    if (synthRef.current.onvoiceschanged !== undefined) {
+      synthRef.current.onvoiceschanged = loadVoices;
+    }
+    
+    // Retry loading after a delay (for mobile)
+    setTimeout(loadVoices, 500);
+    setTimeout(loadVoices, 1000);
+    setTimeout(loadVoices, 2000);
+  }, []);
   
   // Initialize chat with welcome message
   useEffect(() => {
@@ -299,18 +326,36 @@ function App() {
       .replace(/[۔]/g, '.')
       .trim();
     
-    // Get available voices
-    let voices = synthRef.current.getVoices();
+    // Get available voices - use pre-loaded voices first
+    let voices = availableVoicesRef.current.length > 0 
+      ? availableVoicesRef.current 
+      : synthRef.current.getVoices();
     
+    // If still no voices, try to load them (mobile fix)
     if (voices.length === 0) {
       await new Promise(resolve => {
-        synthRef.current.onvoiceschanged = () => {
+        const checkVoices = () => {
           voices = synthRef.current.getVoices();
-          resolve();
+          if (voices.length > 0) {
+            availableVoicesRef.current = voices;
+            resolve();
+          }
         };
-        setTimeout(resolve, 500);
+        synthRef.current.onvoiceschanged = checkVoices;
+        // Multiple timeouts for mobile compatibility
+        setTimeout(checkVoices, 100);
+        setTimeout(checkVoices, 300);
+        setTimeout(checkVoices, 500);
+        setTimeout(resolve, 1000); // Final timeout
       });
       voices = synthRef.current.getVoices();
+    }
+    
+    // Mobile fallback - if no voices, show alert
+    if (voices.length === 0) {
+      console.log('No TTS voices available');
+      setIsSpeaking(false);
+      return;
     }
     
     // Select voice - for Urdu use Hindi or English India
@@ -326,17 +371,41 @@ function App() {
                       voices.find(v => v.lang.includes('hi-IN')) ||
                       voices.find(v => v.name.includes('Google') && v.lang.includes('en-IN')) ||
                       voices.find(v => v.lang.includes('en-IN')) ||
-                      voices.find(v => v.name.includes('Google'));
+                      voices.find(v => v.name.includes('Google')) ||
+                      voices.find(v => v.lang.startsWith('en'));
     }
     
     if (!selectedVoice && voices.length > 0) {
       selectedVoice = voices[0];
     }
     
-    console.log('Using voice:', selectedVoice?.name, selectedVoice?.lang);
+    console.log('🔊 Using voice:', selectedVoice?.name, selectedVoice?.lang);
     
     // Split into sentences for better control
     const sentences = cleanText.split(/[.۔!?]+/).filter(s => s.trim());
+    
+    // For mobile - speak as one chunk if sentences are few
+    if (sentences.length <= 3) {
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice.lang;
+      } else {
+        utterance.lang = language === 'en' ? 'en-US' : 'hi-IN';
+      }
+      utterance.rate = 0.85;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.log('TTS Error:', e);
+        setIsSpeaking(false);
+      };
+      
+      synthRef.current.speak(utterance);
+      return;
+    }
     
     let currentIndex = 0;
     
