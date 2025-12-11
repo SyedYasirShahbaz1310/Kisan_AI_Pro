@@ -187,11 +187,8 @@ const languageNames = {
 
 function App() {
   const [theme, setTheme] = useState('light');
-  // Load saved language from localStorage or default to 'ur'
-  const [language, setLanguage] = useState(() => {
-    const saved = localStorage.getItem('kisanAI_language');
-    return saved || 'ur';
-  });
+  // Default language is Urdu
+  const [language, setLanguage] = useState('ur');
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -224,11 +221,6 @@ function App() {
   
   // Get current translations
   const t = translations[language];
-
-  // Save language to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('kisanAI_language', language);
-  }, [language]);
   
   // Initialize chat with welcome message
   useEffect(() => {
