@@ -1,0 +1,153 @@
+{
+  "metadata": {
+    "name": "Kisan AI Agriculture Dataset",
+    "version": "1.0",
+    "language": ["en", "ur", "pa"],
+    "sources": ["Punjab Agriculture Department", "PARC - Pakistan Agricultural Research Council"],
+    "last_updated": "2025-01-01"
+  },
+  "crops": [
+    {
+      "id": 1,
+      "name": "Wheat",
+      "name_urdu": "گندم",
+      "name_punjabi": "کنک",
+      "category": "cereals",
+      "season": "Rabi",
+      "sowing_months": ["October", "November", "December"],
+      "harvest_months": ["April", "May"],
+      "problems": [
+        {
+          "name": "Rust Disease",
+          "name_urdu": "زنگ کی بیماری",
+          "symptoms": [
+            "Orange-brown pustules on leaves",
+            "پتوں پر نارنجی بھورے دھبے",
+            "Yellowing of leaves",
+            "پتوں کا پیلا پڑنا"
+          ],
+          "causes": ["Humid weather", "Dense planting", "نمی والا موسم"],
+          "solution": {
+            "organic": "Remove infected plants, improve air circulation",
+            "chemical": "Apply Tilt 250EC (Propiconazole) @ 200ml per acre",
+            "urdu": "متاثرہ پودے ہٹا دیں۔ ٹلٹ 250EC @ 200ml فی ایکڑ سپرے کریں"
+          },
+          "prevention": "Use rust-resistant varieties like Faisalabad-2008, Galaxy-2013",
+          "source": "Punjab Agriculture Department"
+        },
+        {
+          "name": "Aphid Attack",
+          "name_urdu": "تیلا کا حملہ",
+          "symptoms": [
+            "Small green insects on leaves",
+            "پتوں پر چھوٹے سبز کیڑے",
+            "Sticky honeydew on plants",
+            "پودوں پر چپچپا مادہ"
+          ],
+          "causes": ["Warm dry weather", "گرم خشک موسم"],
+          "solution": {
+            "organic": "Spray neem oil solution",
+            "chemical": "Imidacloprid 200SL @ 250ml per acre",
+            "urdu": "نیم کا تیل سپرے کریں یا امیڈاکلوپرڈ @ 250ml فی ایکڑ"
+          },
+          "prevention": "Early sowing, balanced fertilizer use",
+          "source": "PARC"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Cotton",
+      "name_urdu": "کپاس",
+      "name_punjabi": "کپاہ",
+      "category": "cash_crops",
+      "season": "Kharif",
+      "sowing_months": ["April", "May", "June"],
+      "harvest_months": ["October", "November", "December"],
+      "problems": [
+        {
+          "name": "Pink Bollworm",
+          "name_urdu": "گلابی سنڈی",
+          "symptoms": [
+            "Holes in cotton bolls",
+            "ٹینڈوں میں سوراخ",
+            "Pink larvae inside bolls",
+            "ٹینڈوں کے اندر گلابی سنڈی"
+          ],
+          "causes": ["Late sowing", "Previous crop residue", "دیر سے بجائی"],
+          "solution": {
+            "organic": "Install pheromone traps, release Trichogramma",
+            "chemical": "Spray Emamectin Benzoate @ 200ml per acre",
+            "urdu": "فیرومون ٹریپ لگائیں۔ ایمامیکٹن بینزوایٹ @ 200ml فی ایکڑ سپرے کریں"
+          },
+          "prevention": "Early sowing before May 15, destroy crop residue",
+          "source": "Punjab Agriculture Department"
+        },
+        {
+          "name": "Cotton Leaf Curl Virus (CLCV)",
+          "name_urdu": "پتہ مروڑ وائرس",
+          "symptoms": [
+            "Upward curling of leaves",
+            "پتوں کا اوپر کی طرف مڑنا",
+            "Thickening of leaf veins",
+            "پتوں کی رگوں کا موٹا ہونا",
+            "Stunted growth",
+            "پودے کی نشوونما رک جانا"
+          ],
+          "causes": ["Whitefly transmission", "سفید مکھی سے پھیلتا ہے"],
+          "solution": {
+            "organic": "Remove infected plants, control whitefly with neem",
+            "chemical": "Control whitefly with Acetamiprid @ 150g per acre",
+            "urdu": "متاثرہ پودے اکھاڑ دیں۔ سفید مکھی کنٹرول کریں ایسیٹامیپرڈ @ 150g فی ایکڑ"
+          },
+          "prevention": "Use CLCV resistant varieties, avoid late sowing",
+          "source": "PARC"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Rice",
+      "name_urdu": "چاول",
+      "name_punjabi": "جھونا",
+      "category": "cereals",
+      "season": "Kharif",
+      "sowing_months": ["June", "July"],
+      "harvest_months": ["October", "November"],
+      "problems": [
+        {
+          "name": "Rice Blast",
+          "name_urdu": "بلاسٹ بیماری",
+          "symptoms": [
+            "Diamond shaped spots on leaves",
+            "پتوں پر ہیرے کی شکل کے دھبے",
+            "Greyish center with brown border",
+            "بھورے کنارے والے سرمئی دھبے"
+          ],
+          "causes": ["High humidity", "Excess nitrogen", "زیادہ نمی"],
+          "solution": {
+            "organic": "Improve drainage, reduce nitrogen",
+            "chemical": "Spray Nativo (Tebuconazole + Trifloxystrobin) @ 120g per acre",
+            "urdu": "نکاسی بہتر کریں۔ نیٹیوو @ 120g فی ایکڑ سپرے کریں"
+          },
+          "prevention": "Use resistant varieties, balanced fertilization",
+          "source": "PARC"
+        }
+      ]
+    }
+  ],
+  "general_advice": {
+    "soil_testing": {
+      "en": "Get soil tested before each season from nearest agriculture office",
+      "ur": "ہر موسم سے پہلے قریبی زرعی دفتر سے مٹی کا ٹیسٹ کروائیں"
+    },
+    "water_management": {
+      "en": "Use drip irrigation to save 50% water",
+      "ur": "ڈرپ اریگیشن سے 50% پانی بچائیں"
+    },
+    "emergency_contact": {
+      "en": "Punjab Agriculture Helpline: 0800-15000",
+      "ur": "پنجاب زراعت ہیلپ لائن: 0800-15000"
+    }
+  }
+}

@@ -23,8 +23,8 @@ const upload = multer({ storage: storage });
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Load Agriculture Dataset
-const agriDataPath = path.join(__dirname, '..', 'knowledge', 'agri_data.json');
+// Load Agriculture Dataset (Vercel compatible path)
+const agriDataPath = path.join(__dirname, 'data', 'agri_data.json');
 let agriData = {};
 
 try {
@@ -32,28 +32,16 @@ try {
   console.log('✅ Agriculture dataset loaded successfully');
 } catch (error) {
   console.error('❌ Error loading agriculture dataset:', error.message);
+  // Fallback empty data
+  agriData = { crops: [], general_advice: {} };
 }
 
-// Load TensorFlow Model
+// TensorFlow Model - Using rule-based prediction (Vercel serverless compatible)
 let tfModel = null;
-const tf = require('@tensorflow/tfjs');
 
 async function loadModel() {
-  try {
-    const modelPath = path.join(__dirname, '..', 'models', 'crop_model', 'model.json');
-    if (fs.existsSync(modelPath)) {
-      // Load model from file for tfjs (not tfjs-node)
-      const modelJSON = JSON.parse(fs.readFileSync(modelPath, 'utf8'));
-      const weightsPath = path.join(__dirname, '..', 'models', 'crop_model', 'weights.bin');
-      if (fs.existsSync(weightsPath)) {
-        console.log('✅ TensorFlow model files found (using rule-based prediction for simplicity)');
-      }
-    } else {
-      console.log('⚠️ TensorFlow model not found. Using rule-based prediction.');
-    }
-  } catch (error) {
-    console.error('❌ Error loading TensorFlow model:', error.message);
-  }
+  // Using rule-based prediction for serverless environment
+  console.log('✅ Using rule-based prediction (serverless compatible)');
 }
 
 // Accurate Rule-Based Prediction Function
